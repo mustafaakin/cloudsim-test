@@ -31,11 +31,14 @@ public class Provider {
 		long storage = 1000000;
 		int bw = 10000;
 
-		Host h = (new Host(hostId, new RamProvisionerSimple(ram), new BwProvisionerSimple(bw), storage, peList1, new VmSchedulerTimeShared(peList1)));
+		Host h = (new Host(hostId, new RamProvisionerSimple(ram),
+				new BwProvisionerSimple(bw), storage, peList1,
+				new VmSchedulerTimeShared(peList1)));
 		return h;
 	}
 
-	public static List<Cloudlet> createCloudlet(int userId, int cloudlets, int idShift) {
+	public static List<Cloudlet> createCloudlet(int userId, int cloudlets,
+			int idShift) {
 		LinkedList<Cloudlet> list = new LinkedList<Cloudlet>();
 		long length = 40000;
 		long fileSize = 300;
@@ -44,7 +47,9 @@ public class Provider {
 		UtilizationModel utilizationModel = new UtilizationModelFull();
 		Cloudlet[] cloudlet = new Cloudlet[cloudlets];
 		for (int i = 0; i < cloudlets; i++) {
-			cloudlet[i] = new Cloudlet(idShift + i, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
+			cloudlet[i] = new Cloudlet(idShift + i, length, pesNumber,
+					fileSize, outputSize, utilizationModel, utilizationModel,
+					utilizationModel);
 			cloudlet[i].setUserId(userId);
 			list.add(cloudlet[i]);
 		}
@@ -67,12 +72,14 @@ public class Provider {
 		double costPerBw = 0.1;
 		LinkedList<Storage> storageList = new LinkedList<Storage>();
 
-		DatacenterCharacteristics characteristics = new DatacenterCharacteristics(arch, os, vmm, hostList, time_zone, cost, costPerMem, costPerStorage, costPerBw);
+		DatacenterCharacteristics characteristics = new DatacenterCharacteristics(
+				arch, os, vmm, hostList, time_zone, cost, costPerMem,
+				costPerStorage, costPerBw);
 
-		// 6. Finally, we need to create a PowerDatacenter object.
 		Datacenter datacenter = null;
 		try {
-			datacenter = new Datacenter(name, characteristics, new VmAllocationPolicySimple(hostList), storageList, 0);
+			datacenter = new Datacenter(name, characteristics,
+					new VmAllocationPolicySimple(hostList), storageList, 0);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -83,9 +90,9 @@ public class Provider {
 	public static List<Vm> createVM(int userId, int vms, int idShift) {
 		LinkedList<Vm> list = new LinkedList<Vm>();
 
-		long size = 10000;
+		long size = 500;
 		int ram = 512;
-		int mips = 250;
+		int mips = 100;
 		long bw = 1000;
 		int pesNumber = 1;
 		String vmm = "Xen";
@@ -93,7 +100,8 @@ public class Provider {
 		Vm[] vm = new Vm[vms];
 
 		for (int i = 0; i < vms; i++) {
-			vm[i] = new Vm(idShift + i, userId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
+			vm[i] = new Vm(idShift + i, userId, mips, pesNumber, ram, bw, size,
+					vmm, new CloudletSchedulerTimeShared());
 			list.add(vm[i]);
 		}
 
