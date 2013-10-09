@@ -1,6 +1,8 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.CloudletSchedulerTimeShared;
@@ -14,29 +16,18 @@ import org.cloudbus.cloudsim.UtilizationModelFull;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.VmAllocationPolicySimple;
 import org.cloudbus.cloudsim.VmSchedulerTimeShared;
+import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
 
 public class Provider {
-	public static Host getHost(int cores, int hostId, int ram) {
-		List<Pe> peList1 = new ArrayList<Pe>();
-
-		int mips = 1000;
-
-		for (int i = 0; i < cores; i++) {
-			peList1.add(new Pe(i, new PeProvisionerSimple(mips)));
-		}
-
-		long storage = 1000000;
-		int bw = 10000;
-
-		Host h = (new Host(hostId, new RamProvisionerSimple(ram),
-				new BwProvisionerSimple(bw), storage, peList1,
-				new VmSchedulerTimeShared(peList1)));
-		return h;
+	public static Map<Integer, String> datacenterNames = new HashMap<Integer,String>();
+	
+	public static String getDatacenterName(int id) {
+		return datacenterNames.get(id);
 	}
-
+	
 	public static List<Cloudlet> createCloudlet(int userId, int cloudlets,
 			int idShift) {
 		LinkedList<Cloudlet> list = new LinkedList<Cloudlet>();
@@ -53,6 +44,27 @@ public class Provider {
 			cloudlet[i].setUserId(userId);
 			list.add(cloudlet[i]);
 		}
+		return list;
+	}
+
+	public static List<Vm> createVM(int userId, int vms, int idShift) {
+		LinkedList<Vm> list = new LinkedList<Vm>();
+
+		long size = 500;
+		int ram = 512;
+		int mips = 100;
+		long bw = 1000;
+		int pesNumber = 1;
+		String vmm = "Xen";
+
+		Vm[] vm = new Vm[vms];
+
+		for (int i = 0; i < vms; i++) {
+			vm[i] = new Vm(idShift + i, userId, mips, pesNumber, ram, bw, size,
+					vmm, new CloudletSchedulerTimeShared());
+			list.add(vm[i]);
+		}
+
 		return list;
 	}
 
@@ -80,6 +92,7 @@ public class Provider {
 		try {
 			datacenter = new Datacenter(name, characteristics,
 					new VmAllocationPolicySimple(hostList), storageList, 0);
+			datacenterNames.put(datacenter.getId(),name);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -87,24 +100,21 @@ public class Provider {
 		return datacenter;
 	}
 
-	public static List<Vm> createVM(int userId, int vms, int idShift) {
-		LinkedList<Vm> list = new LinkedList<Vm>();
+	public static Host getHost(int cores, int hostId, int ram) {
+		List<Pe> peList1 = new ArrayList<Pe>();
 
-		long size = 500;
-		int ram = 512;
-		int mips = 100;
-		long bw = 1000;
-		int pesNumber = 1;
-		String vmm = "Xen";
+		int mips = 1000;
 
-		Vm[] vm = new Vm[vms];
-
-		for (int i = 0; i < vms; i++) {
-			vm[i] = new Vm(idShift + i, userId, mips, pesNumber, ram, bw, size,
-					vmm, new CloudletSchedulerTimeShared());
-			list.add(vm[i]);
+		for (int i = 0; i < cores; i++) {
+			peList1.add(new Pe(i, new PeProvisionerSimple(mips)));
 		}
 
-		return list;
+		long storage = 1000000;
+		int bw = 10000;
+
+		Host h = (new Host(hostId, new RamProvisionerSimple(ram),
+				new BwProvisionerSimple(bw), storage, peList1,
+				new VmSchedulerTimeShared(peList1)));
+		return h;
 	}
 }

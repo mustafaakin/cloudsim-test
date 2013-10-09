@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,13 +11,15 @@ import org.cloudbus.cloudsim.core.SimEvent;
 
 public class User extends SimEntity {
 	private static final int NEW_REQ = 0;
-	private ArrayList<Request> reqs = new ArrayList<Request>();
 	private ArrayList<DatacenterBroker> brokers = new ArrayList<DatacenterBroker>();
-
-	private LinkedList<Vm> vmList = new LinkedList<Vm>();
 	private LinkedList<Cloudlet> cloudletList = new LinkedList<Cloudlet>();
 
 	private ArrayList<Integer> ids = new ArrayList<Integer>();
+	private ArrayList<Request> reqs = new ArrayList<Request>();
+
+	private LinkedList<Vm> vmList = new LinkedList<Vm>();
+
+	private int lastId = getId() * 100;
 	
 	public User(String name) {
 		super(name);
@@ -27,10 +28,23 @@ public class User extends SimEntity {
 	public void addRequest(Request r) {
 		reqs.add(r);
 	}
-	
+
+	public List<Cloudlet> getCloudletList() {
+		LinkedList<Cloudlet> list = new LinkedList<Cloudlet>();
+		for (DatacenterBroker b : brokers) {
+			list.addAll(b.getCloudletSubmittedList());
+		}
+		return list;
+	}
+
 	public ArrayList<Integer> getIds() {
 		return ids;
 	}
+
+	public List<Vm> getVmList() {
+		return vmList;
+	}
+
 	@Override
 	public void processEvent(SimEvent ev) {
 		switch (ev.getTag()) {
@@ -42,11 +56,11 @@ public class User extends SimEntity {
 				DatacenterBroker broker = null;
 				broker = new DatacenterBroker(getName() + "-broker-" + idx);
 				ids.add(broker.getId());
-				
+
 				List<Vm> vmList = Provider.createVM(broker.getId(),
-						r.getVmCount(), idx * 100);
+						r.getVmCount(), lastId);
 				List<Cloudlet> cloudletList = Provider.createCloudlet(
-						broker.getId(), r.getCloudletCount(), idx * 100);
+						broker.getId(), r.getVmCount(), lastId);
 
 				broker.submitCloudletList(cloudletList);
 				broker.submitVmList(vmList);
@@ -55,6 +69,9 @@ public class User extends SimEntity {
 				this.cloudletList.addAll(cloudletList);
 
 				brokers.add(idx, broker);
+				
+				lastId = lastId + r.getVmCount();
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -66,27 +83,15 @@ public class User extends SimEntity {
 	}
 
 	@Override
+	public void shutdownEntity() {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
 	public void startEntity() {
 		for (int i = 0; i < reqs.size(); i++) {
 			Request r = reqs.get(i);
 			schedule(getId(), r.getTime(), NEW_REQ, i);
 		}
-	}
-
-	@Override
-	public void shutdownEntity() {
-		// TODO Auto-generated method stub
-	}
-
-	public List<Cloudlet> getCloudletList() {
-		LinkedList<Cloudlet> list = new LinkedList<Cloudlet>();
-		for (DatacenterBroker b : brokers) {
-			list.addAll(b.getCloudletSubmittedList());
-		}
-		return list;
-	}
-
-	public List<Vm> getVmList() {
-		return vmList;
 	}
 }
