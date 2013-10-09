@@ -1,10 +1,7 @@
-import java.util.ArrayList;
 import java.util.List;
 
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.Log;
-import org.cloudbus.cloudsim.core.CloudSim;
-import org.cloudbus.cloudsim.core.SimEntity;
 
 public class Util {
 	private final static String row = "%10s\t%10s\t%10s\t%4d\t%10.2f\t%10.2f\t%10.2f";

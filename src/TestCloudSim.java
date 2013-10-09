@@ -60,6 +60,8 @@ public class TestCloudSim {
 		Util.printCloudletList(u1);
 		Util.printCloudletList(u2);
 		Util.printCloudletList(u3);
+		
+		
 
 		CloudSim.stopSimulation();
 	}
