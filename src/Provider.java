@@ -28,13 +28,13 @@ public class Provider {
 		return datacenterNames.get(id);
 	}
 	
-	public static List<Cloudlet> createCloudlet(int userId, int cloudlets,
+	public static List<Cloudlet> createCloudlet(Request req, int userId, int cloudlets,
 			int idShift) {
 		LinkedList<Cloudlet> list = new LinkedList<Cloudlet>();
-		long length = 40000;
-		long fileSize = 300;
-		long outputSize = 300;
-		int pesNumber = 1;
+		long length = req.getParams().work;
+		long fileSize = 0;
+		long outputSize = 0;
+		int pesNumber = req.getParams().cores;
 		UtilizationModel utilizationModel = new UtilizationModelFull();
 		Cloudlet[] cloudlet = new Cloudlet[cloudlets];
 		for (int i = 0; i < cloudlets; i++) {
@@ -48,10 +48,11 @@ public class Provider {
 	}
 
 
-	public static Datacenter getDatacenter(String name, Host... hosts) {
+	public static Datacenter getDatacenter(String name, HostParams... hostParamss) {
 		LinkedList<Host> hostList = new LinkedList<Host>();
-		for (Host h : hosts) {
-			hostList.add(h);
+		int i = 0;
+		for (HostParams h : hostParamss) {			
+			hostList.add(getHost(i++, h));
 		}
 
 		String arch = "x86";
@@ -80,19 +81,19 @@ public class Provider {
 		return datacenter;
 	}
 
-	public static Host getHost(int cores, int hostId, int ram) {
+	public static Host getHost(int hostId, HostParams params) {
 		List<Pe> peList1 = new ArrayList<Pe>();
 
-		int mips = 1000;
+		int mips = params.speed;
 
-		for (int i = 0; i < cores; i++) {
+		for (int i = 0; i < params.cores; i++) {
 			peList1.add(new Pe(i, new PeProvisionerSimple(mips)));
 		}
 
-		long storage = 1000000;
-		int bw = 10000;
+		long storage = 100000000;
+		int bw = 1000000;
 
-		Host h = (new Host(hostId, new RamProvisionerSimple(ram),
+		Host h = (new Host(hostId, new RamProvisionerSimple(params.ram),
 				new BwProvisionerSimple(bw), storage, peList1,
 				new VmSchedulerTimeShared(peList1)));
 		return h;

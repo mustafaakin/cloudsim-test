@@ -14,7 +14,6 @@ public class User extends SimEntity {
 
 	private static final int NEW_REQ = 0;
 
-	private ArrayList<DatacenterBroker> brokers = new ArrayList<DatacenterBroker>();
 	private LinkedList<Cloudlet> cloudletList = new LinkedList<Cloudlet>();
 
 	private ArrayList<Integer> ids = new ArrayList<Integer>();
@@ -33,11 +32,7 @@ public class User extends SimEntity {
 	}
 
 	public List<Cloudlet> getCloudletList() {
-		LinkedList<Cloudlet> list = new LinkedList<Cloudlet>();
-		for (DatacenterBroker b : brokers) {
-			list.addAll(b.getCloudletSubmittedList());
-		}
-		return list;
+		return cloudletList;
 	}
 
 	public ArrayList<Integer> getIds() {
@@ -53,16 +48,16 @@ public class User extends SimEntity {
 		switch (ev.getTag()) {
 		case NEW_REQ:
 			int idx = (Integer) ev.getData();
-			Request r = reqs.get(idx);
+			Request req = reqs.get(idx);
 
 			try {
 				DatacenterBroker broker = null;
 				broker = new DatacenterBroker(getName() + "-broker-" + idx);
 				ids.add(broker.getId());
 
-				List<Vm> vmList = r.getVms(lastId, broker.getId());
-				List<Cloudlet> cloudletList = Provider.createCloudlet(
-						broker.getId(), r.getVmCount(), lastId);
+				List<Vm> vmList = req.getVms(lastId, broker.getId());
+				List<Cloudlet> cloudletList = Provider.createCloudlet(req,
+						broker.getId(), req.getVmCount(), lastId);
 
 				broker.submitCloudletList(cloudletList);
 				broker.submitVmList(vmList);
@@ -70,9 +65,9 @@ public class User extends SimEntity {
 				this.vmList.addAll(vmList);
 				this.cloudletList.addAll(cloudletList);
 
-				brokers.add(idx, broker);
 
-				lastId = lastId + r.getVmCount();
+
+				lastId = lastId + req.getVmCount();
 
 			} catch (Exception e) {
 				e.printStackTrace();
