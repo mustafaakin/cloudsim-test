@@ -47,26 +47,6 @@ public class Provider {
 		return list;
 	}
 
-	public static List<Vm> createVM(int userId, int vms, int idShift) {
-		LinkedList<Vm> list = new LinkedList<Vm>();
-
-		long size = 500;
-		int ram = 512;
-		int mips = 100;
-		long bw = 1000;
-		int pesNumber = 1;
-		String vmm = "Xen";
-
-		Vm[] vm = new Vm[vms];
-
-		for (int i = 0; i < vms; i++) {
-			vm[i] = new Vm(idShift + i, userId, mips, pesNumber, ram, bw, size,
-					vmm, new CloudletSchedulerTimeShared());
-			list.add(vm[i]);
-		}
-
-		return list;
-	}
 
 	public static Datacenter getDatacenter(String name, Host... hosts) {
 		LinkedList<Host> hostList = new LinkedList<Host>();

@@ -10,7 +10,10 @@ import org.cloudbus.cloudsim.core.SimEntity;
 import org.cloudbus.cloudsim.core.SimEvent;
 
 public class User extends SimEntity {
+	public static final int CLOUDLET_SHIFT_COUNT = 1000;
+
 	private static final int NEW_REQ = 0;
+
 	private ArrayList<DatacenterBroker> brokers = new ArrayList<DatacenterBroker>();
 	private LinkedList<Cloudlet> cloudletList = new LinkedList<Cloudlet>();
 
@@ -19,8 +22,8 @@ public class User extends SimEntity {
 
 	private LinkedList<Vm> vmList = new LinkedList<Vm>();
 
-	private int lastId = getId() * 100;
-	
+	private int lastId = getId() * CLOUDLET_SHIFT_COUNT;
+
 	public User(String name) {
 		super(name);
 	}
@@ -57,8 +60,7 @@ public class User extends SimEntity {
 				broker = new DatacenterBroker(getName() + "-broker-" + idx);
 				ids.add(broker.getId());
 
-				List<Vm> vmList = Provider.createVM(broker.getId(),
-						r.getVmCount(), lastId);
+				List<Vm> vmList = r.getVms(lastId, broker.getId());
 				List<Cloudlet> cloudletList = Provider.createCloudlet(
 						broker.getId(), r.getVmCount(), lastId);
 
@@ -69,11 +71,12 @@ public class User extends SimEntity {
 				this.cloudletList.addAll(cloudletList);
 
 				brokers.add(idx, broker);
-				
+
 				lastId = lastId + r.getVmCount();
-				
+
 			} catch (Exception e) {
 				e.printStackTrace();
+				System.exit(1);
 			}
 			break;
 		default:
